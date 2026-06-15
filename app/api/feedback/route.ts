@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { FeedbackEngine, FeedbackRecord } from '@/lib/feedbackEngine';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rateLimiter';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +15,22 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ success: false, error: '未登录' }, { status: 401 });
+    }
+
+    // 速率限制检查
+    const rateLimit = await checkRateLimit(request, '/api/feedback', user.id);
+    
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `请求过于频繁，请在 ${rateLimit.retryAfter} 秒后重试`,
+        },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit),
+        }
+      );
     }
 
     const body = await request.json();
@@ -42,6 +59,8 @@ export async function POST(request: NextRequest) {
         success: true,
         message: feedback === 'good' ? '感谢反馈！已记录你的偏好' : feedback === 'bad' ? '已记录，下次推荐会避免类似内容' : '已记录',
         data,
+      }, {
+        headers: getRateLimitHeaders(rateLimit),
       });
     }
 
@@ -90,6 +109,8 @@ export async function POST(request: NextRequest) {
         success: true,
         message: '效果数据已记录！Agent 会据此优化下次推荐',
         data: contentData,
+      }, {
+        headers: getRateLimitHeaders(rateLimit),
       });
     }
 

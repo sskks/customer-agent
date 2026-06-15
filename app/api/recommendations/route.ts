@@ -10,12 +10,31 @@ import { RecommendationEngine } from '@/lib/recommendationEngine';
 import { FeedbackEngine, FeedbackRecord } from '@/lib/feedbackEngine';
 import { AgentContext, Industry } from '@/lib/types';
 import { DouyinService } from '@/lib/douyinService';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rateLimiter';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+
+    // 速率限制检查
+    const rateLimit = await checkRateLimit(request, '/api/recommendations', user?.id);
+    
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `请求过于频繁，请在 ${rateLimit.retryAfter} 秒后重试`,
+          retryAfter: rateLimit.retryAfter,
+        },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit),
+        }
+      );
+    }
+
+    const body = await request.json();
 
     let context: AgentContext;
     let feedbackInsight: ReturnType<typeof FeedbackEngine.analyzeFeedback> | undefined;
@@ -264,6 +283,7 @@ export async function POST(request: NextRequest) {
             }
           : null,
       },
+      headers: getRateLimitHeaders(rateLimit),
     });
   } catch (error) {
     console.error('[API] 推荐生成失败:', error);

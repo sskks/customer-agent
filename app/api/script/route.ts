@@ -5,9 +5,29 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateScript, ScriptGenerationRequest } from '@/lib/scriptGenerator';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rateLimiter';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
+    // 速率限制检查
+    const userId = await getUserId();
+    const rateLimit = await checkRateLimit(request, '/api/script', userId);
+    
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `请求过于频繁，请在 ${rateLimit.retryAfter} 秒后重试`,
+          retryAfter: rateLimit.retryAfter,
+        },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit),
+        }
+      );
+    }
+
     const body = await request.json();
     
     // 验证必要参数
@@ -47,7 +67,8 @@ export async function POST(request: NextRequest) {
           model: 'qwen-plus',
           cost: estimateCost(script)
         }
-      }
+      },
+      headers: getRateLimitHeaders(rateLimit),
     });
 
   } catch (error) {
@@ -60,6 +81,19 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * 获取当前用户 ID（如果已登录）
+ */
+async function getUserId(): Promise<string | undefined> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id;
+  } catch {
+    return undefined;
   }
 }
 
