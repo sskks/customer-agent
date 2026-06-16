@@ -61,7 +61,12 @@ export class ScriptGenerator {
     const industryLabels: Record<Industry, string> = {
       beauty: '美容/美甲店',
       restaurant: '餐饮/奶茶店',
-      fitness: '健身/瑜伽馆'
+      fitness: '健身/瑜伽馆',
+      bar: '酒吧/酒馆',
+      hotel: '酒店/民宿',
+      education: '教培机构',
+      medical: '医疗/诊所',
+      retail: '零售/电商'
     };
 
     const contentTypeGuidelines: Record<ContentType, string> = {

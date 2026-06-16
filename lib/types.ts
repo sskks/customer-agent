@@ -2,7 +2,7 @@
  * 店播AI Agent - 核心类型定义
  */
 
-export type Industry = 'beauty' | 'restaurant' | 'fitness';
+export type Industry = 'beauty' | 'restaurant' | 'fitness' | 'bar' | 'hotel' | 'education' | 'medical' | 'retail';
 
 export type ContentType = 
   | 'customer_case'
@@ -147,5 +147,10 @@ export const INDUSTRY_BENCHMARKS: Record<Industry, {
 }> = {
   beauty: { avgViews: 2000, avgInquiries: 8 },
   restaurant: { avgViews: 3000, avgInquiries: 12 },
-  fitness: { avgViews: 2500, avgInquiries: 10 }
+  fitness: { avgViews: 2500, avgInquiries: 10 },
+  bar: { avgViews: 3500, avgInquiries: 15 },
+  hotel: { avgViews: 2800, avgInquiries: 11 },
+  education: { avgViews: 2200, avgInquiries: 9 },
+  medical: { avgViews: 1800, avgInquiries: 7 },
+  retail: { avgViews: 2600, avgInquiries: 10 }
 };

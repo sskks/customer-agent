@@ -406,6 +406,11 @@ export default function Home() {
                     <option value="beauty">美容院 / 美甲店</option>
                     <option value="restaurant">餐饮店 / 奶茶店</option>
                     <option value="fitness">健身房 / 瑜伽馆</option>
+                    <option value="bar">酒吧 / 酒馆</option>
+                    <option value="hotel">酒店 / 民宿</option>
+                    <option value="education">教培机构</option>
+                    <option value="medical">医疗 / 诊所</option>
+                    <option value="retail">零售 / 电商</option>
                   </select>
                 </div>
                 <div>
