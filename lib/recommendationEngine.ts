@@ -10,7 +10,10 @@ import {
   ContentType,
   INDUSTRY_BENCHMARKS,
   SEASONAL_TOPICS,
-  CONTENT_TYPE_LABELS
+  CONTENT_TYPE_LABELS,
+  matchIndustryProfile,
+  getDefaultIndustryProfile,
+  IndustryProfile
 } from './types';
 import { FeedbackEngine, FeedbackInsight } from './feedbackEngine';
 
@@ -49,7 +52,11 @@ export class RecommendationEngine {
   private generateCandidates(context: AgentContext): RecommendationCandidate[] {
     const candidates: RecommendationCandidate[] = [];
 
-    // 来源1：热点话题
+    // 获取行业档案
+    const industryProfile = matchIndustryProfile(context.userProfile.industry) || getDefaultIndustryProfile();
+    const season = context.currentSituation.season;
+
+    // 来源1：热点话题（已在 route 层按行业筛选）
     const trendingCandidates = context.currentSituation.trendingTopics
       .slice(0, 3)
       .map(trend => ({
@@ -68,14 +75,13 @@ export class RecommendationEngine {
       }));
     candidates.push(...trendingCandidates);
 
-    // 来源2：季节性话题
-    const season = context.currentSituation.season;
-    const seasonalTopics = SEASONAL_TOPICS[season] || [];
-    const seasonalCandidates = seasonalTopics.slice(0, 2).map(topic => ({
+    // 来源2：行业季节性话题（优先使用行业定制话题）
+    const seasonalTopics = (industryProfile.seasonalTopics[season] || SEASONAL_TOPICS[season] || []);
+    const seasonalCandidates = seasonalTopics.slice(0, 3).map(topic => ({
       topic,
       contentType: 'knowledge' as ContentType,
       score: 0,
-      reasons: [`${season}是这类内容的旺季`],
+      reasons: [`${season}季热门：${topic}`],
       metadata: {
         scoringDetails: [],
         estimatedEffort: {
@@ -87,21 +93,14 @@ export class RecommendationEngine {
     }));
     candidates.push(...seasonalCandidates);
 
-    // 来源3：最佳实践（覆盖所有内容类型）
-    const bestPractices = [
-      { topic: '顾客案例分享', type: 'customer_case' as ContentType },
-      { topic: '专业知识科普', type: 'knowledge' as ContentType },
-      { topic: '限时优惠活动', type: 'promotion' as ContentType },
-      { topic: '店内环境展示', type: 'environment_tour' as ContentType },
-      { topic: '团队幕后日常', type: 'behind_scenes' as ContentType },
-      { topic: '明星产品推荐', type: 'product_showcase' as ContentType }
-    ];
+    // 来源3：行业最佳实践（使用行业定制选题）
+    const bestPractices = industryProfile.bestPractices;
 
     const practiceCandidates = bestPractices.map(bp => ({
       topic: bp.topic,
       contentType: bp.type,
       score: 0,
-      reasons: ['行业最佳实践'],
+      reasons: [`${context.userProfile.industry}行业最佳实践`],
       metadata: {
         scoringDetails: [],
         estimatedEffort: {
@@ -121,40 +120,52 @@ export class RecommendationEngine {
     context: AgentContext,
     feedbackInsight?: FeedbackInsight
   ): RecommendationCandidate[] {
+    const industryProfile = matchIndustryProfile(context.userProfile.industry) || getDefaultIndustryProfile();
+    const industryKws = industryProfile.trendingKeywords.map(k => k.toLowerCase());
+
+    /** 判断一个话题是否与本行业相关 */
+    const isIndustryRelevant = (topic: string): boolean => {
+      const lower = topic.toLowerCase();
+      return industryKws.some(kw => lower.includes(kw) || kw.includes(lower));
+    };
+
     return candidates.map(candidate => {
       let totalScore = 0;
       const details: string[] = [];
 
-      // 因子1：热点匹配（权重 0.35）
+      const relevant = isIndustryRelevant(candidate.topic);
+
+      // 因子1：行业相关性（权重 0.45）— 最重要
+      if (relevant) {
+        totalScore += 0.45;
+        details.push('行业相关 +0.45');
+      }
+
+      // 因子2：热点匹配（权重 0.15，仅行业相关时生效）
       const isTrending = context.currentSituation.trendingTopics.some(
         t => candidate.topic.includes(t.keyword)
       );
-      if (isTrending) {
-        totalScore += 0.35;
-        details.push('热点匹配 +0.35');
+      if (isTrending && relevant) {
+        totalScore += 0.15;
+        details.push('热点匹配 +0.15');
       }
 
-      // 因子2：季节性（权重 0.25）
+      // 因子3：季节性（权重 0.15）
       const season = context.currentSituation.season;
-      const seasonalTopics = SEASONAL_TOPICS[season] || [];
+      const seasonalTopics = industryProfile.seasonalTopics[season] || SEASONAL_TOPICS[season] || [];
       const isSeasonal = seasonalTopics.some(t => candidate.topic.includes(t));
       if (isSeasonal) {
-        totalScore += 0.25;
-        details.push('季节性 +0.25');
+        totalScore += 0.15;
+        details.push('季节性 +0.15');
       }
 
-      // 因子3：历史表现（权重 0.2）
+      // 因子4：历史表现（权重 0.05）
       const historicalScore = this.getHistoricalScore(candidate.contentType, context);
-      totalScore += historicalScore * 0.2;
-      details.push(`历史表现 +${(historicalScore * 0.2).toFixed(2)}`);
+      totalScore += historicalScore * 0.05;
 
-      // 因子4：多样性（权重 0.1）
-      totalScore += 0.1;
-      details.push('多样性 +0.10');
-
-      // 因子5：基础分（权重 0.1）
-      totalScore += 0.1;
-      details.push('基础分 +0.10');
+      // 因子5：多样性 + 基础分（权重 0.20）
+      totalScore += 0.20;
+      details.push('基础 +0.20');
 
       // 因子6：反馈学习调整（可选）
       if (feedbackInsight && feedbackInsight.totalFeedback > 0) {
@@ -195,9 +206,10 @@ export class RecommendationEngine {
     }
 
     const avgInquiries = history.reduce((sum, c) => sum + c.metrics.inquiries, 0) / history.length;
-    const benchmark = INDUSTRY_BENCHMARKS[context.userProfile.industry].avgInquiries;
+    const benchmarkInquiries = matchIndustryProfile(context.userProfile.industry)?.benchmark?.avgInquiries
+      || (INDUSTRY_BENCHMARKS[context.userProfile.industry] || { avgViews: 2000, avgInquiries: 8 }).avgInquiries;
 
-    return Math.min(avgInquiries / benchmark, 1.0);
+    return Math.min(avgInquiries / benchmarkInquiries, 1.0);
   }
 
   private convertToFinalRecommendation(
@@ -210,7 +222,9 @@ export class RecommendationEngine {
 
     const difficulty = totalTime <= 1 ? 'easy' : totalTime <= 2 ? 'medium' : 'hard';
 
-    const benchmark = INDUSTRY_BENCHMARKS[context.userProfile.industry];
+    const benchmark = matchIndustryProfile(context.userProfile.industry)?.benchmark
+      || INDUSTRY_BENCHMARKS[context.userProfile.industry]
+      || { avgViews: 2000, avgInquiries: 8 };
 
     return {
       id: `rec_${Date.now()}_${index}`,

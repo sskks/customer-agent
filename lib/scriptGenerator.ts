@@ -86,6 +86,26 @@ export interface Scene {
 }
 
 /**
+ * 检测生成的脚本是否围绕主题
+ */
+function isOnTopic(script: GeneratedScript, topic: string): boolean {
+  const topicChars = topic.split('');
+  // 取主题中的关键词（至少2个字），检查是否出现在标题或内容中
+  const keywords: string[] = [];
+  // 添加完整主题
+  keywords.push(topic);
+  // 添加主题中的2-4字片段
+  for (let i = 0; i < topicChars.length - 1; i++) {
+    const len = Math.min(4, topicChars.length - i);
+    keywords.push(topicChars.slice(i, i + len).join(''));
+  }
+
+  const textToCheck = `${script.title} ${script.hookLine} ${script.mainContent}`;
+  // 至少有一个关键词出现在内容中
+  return keywords.some(kw => textToCheck.includes(kw));
+}
+
+/**
  * 生成短视频脚本
  */
 export async function generateScript(
@@ -96,13 +116,31 @@ export async function generateScript(
   // 构建 Prompt
   const prompt = buildPrompt(request);
 
-  // 调用 LLM API（传入 topic 用于无 Key 时的 mock）
-  const response = await callQwenAPI(prompt, request.topic);
+  // 调用 LLM API（最多重试 1 次）
+  const MAX_RETRIES = 2;
+  let script: GeneratedScript | null = null;
 
-  // 解析响应
-  const script = parseResponse(response);
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const response = await callQwenAPI(prompt, request.topic);
+    const parsed = parseResponse(response);
 
-  console.log('[ScriptGenerator] 脚本生成完成');
+    // 验证内容是否围绕主题
+    if (isOnTopic(parsed, request.topic)) {
+      script = parsed;
+      break;
+    }
+
+    console.warn(`[ScriptGenerator] 第 ${attempt + 1} 次生成内容跑题，标题: "${parsed.title}"，主题: "${request.topic}"`);
+  }
+
+  // 如果多次重试都跑题，回退到模拟数据
+  if (!script) {
+    console.warn('[ScriptGenerator] LLM 多次生成跑题，回退到模拟数据');
+    const mockResponse = getMockResponse(request.topic);
+    script = parseResponse(mockResponse);
+  }
+
+  console.log('[ScriptGenerator] 脚本生成完成:', script.title);
   return script;
 }
 
@@ -224,7 +262,7 @@ async function callQwenAPI(prompt: string, topic?: string): Promise<string> {
           messages: [
             {
               role: 'system',
-              content: '你是一位专业的短视频脚本策划师，擅长创作高转化的短视频内容。'
+              content: `你是一位专业的短视频脚本策划师。你必须严格围绕用户指定的主题"${topic || ''}"来创作内容，不得偏离主题。如果主题涉及美容护肤，内容就围绕美容护肤；如果主题涉及运动健身，就围绕运动健身。绝不能生成与主题无关的内容。`
             },
             {
               role: 'user',
@@ -234,8 +272,8 @@ async function callQwenAPI(prompt: string, topic?: string): Promise<string> {
         },
         parameters: {
           result_format: 'message',
-          temperature: 0.8,
-          top_p: 0.9,
+          temperature: 0.7,
+          top_p: 0.85,
           max_tokens: 2000
         }
       })

@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { RecommendationEngine } from '@/lib/recommendationEngine';
 import { FeedbackEngine, FeedbackRecord } from '@/lib/feedbackEngine';
-import { AgentContext, Industry } from '@/lib/types';
+import { AgentContext, Industry, matchIndustryProfile, getDefaultIndustryProfile, IndustryProfile } from '@/lib/types';
 import { DouyinService } from '@/lib/douyinService';
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/rateLimiter';
 
@@ -177,42 +177,62 @@ export async function POST(request: NextRequest) {
       };
     } else {
       // ═══ 未登录：模拟数据 ═══
-      // 同样从 DouyinService 获取动态热搜
+      const userIndustry = (body.industry || 'beauty') as Industry;
+      const industryProfile = matchIndustryProfile(userIndustry) || getDefaultIndustryProfile();
+      const currentSeason = getCurrentSeason();
+
+      // 从 DouyinService 获取热搜，用行业关键词筛选
       const douyin = new DouyinService();
       let trendingForDemo = [];
       try {
-        const hotTopics = await douyin.getHotTopics();
+        // 尝试用行业的第一个 trendingKeyword 来搜索
+        const searchKw = industryProfile.trendingKeywords[0] || '';
+        const hotTopics = searchKw ? await douyin.getHotTopics(searchKw) : await douyin.getHotTopics();
         trendingForDemo = hotTopics.slice(0, 6).map(t => ({
           keyword: t.keyword,
           searchVolume: t.heatValue,
           growthRate: Math.round(50 + Math.random() * 300),
         }));
       } catch {
-        trendingForDemo = [
-          { keyword: '夏季护肤技巧', searchVolume: 50000, growthRate: 200 },
-          { keyword: '防晒指南', searchVolume: 40000, growthRate: 180 },
-          { keyword: '清爽穿搭', searchVolume: 30000, growthRate: 150 },
-        ];
+        // 如果热搜搜索失败，用行业 trendingKeywords 生成默认数据
+        trendingForDemo = industryProfile.trendingKeywords.slice(0, 6).map(kw => ({
+          keyword: kw,
+          searchVolume: Math.round(20000 + Math.random() * 80000),
+          growthRate: Math.round(80 + Math.random() * 250),
+        }));
+      }
+
+      // 如果热搜结果为空或太少，补充行业关键词
+      if (trendingForDemo.length < 3) {
+        const extraTopics = industryProfile.trendingKeywords
+          .filter(kw => !trendingForDemo.some(t => t.keyword.includes(kw)))
+          .slice(0, 6 - trendingForDemo.length)
+          .map(kw => ({
+            keyword: kw,
+            searchVolume: Math.round(10000 + Math.random() * 50000),
+            growthRate: Math.round(60 + Math.random() * 200),
+          }));
+        trendingForDemo.push(...extraTopics);
       }
 
       context = {
         userProfile: {
           userId: 'demo_user',
-          industry: (body.industry || 'beauty') as Industry,
-          businessName: body.businessName || '演示美容院',
+          industry: userIndustry,
+          businessName: body.businessName || '演示店铺',
           location: '上海',
           services: [
-            { id: '1', name: '补水护理', description: '深层补水', price: 299 },
-            { id: '2', name: '抗衰护理', description: '紧致抗衰', price: 599 },
+            { id: '1', name: '基础服务', description: '专业服务', price: 199 },
+            { id: '2', name: '高级服务', description: '定制体验', price: 499 },
           ],
-          targetCustomers: '25-45岁女性',
-          priceRange: '200-800元',
+          targetCustomers: '25-45岁消费者',
+          priceRange: '100-500元',
         },
         businessMetrics: {
           userId: 'demo_user',
           totalContents: 15,
-          avgViewsPerContent: 2500,
-          avgInquiriesPerContent: 10,
+          avgViewsPerContent: industryProfile.benchmark.avgViews,
+          avgInquiriesPerContent: industryProfile.benchmark.avgInquiries,
           trend: 'up',
           byContentType: getDefaultByContentType(),
         },
@@ -224,7 +244,7 @@ export async function POST(request: NextRequest) {
           maxDifficulty: 'medium',
         },
         currentSituation: {
-          season: getCurrentSeason(),
+          season: currentSeason,
           trendingTopics: trendingForDemo,
         },
       };

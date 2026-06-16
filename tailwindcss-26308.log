@@ -1,0 +1,101 @@
+2026-06-16T03:36:58.716826Z  INFO tailwindcss_oxide::scanner: Provided sources:
+2026-06-16T03:36:58.716916Z  INFO tailwindcss_oxide::scanner: Source: PublicSourceEntry { base: "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent", pattern: "**/*", negated: false }
+2026-06-16T03:36:58.717118Z  INFO tailwindcss_oxide::scanner: Optimized sources:
+2026-06-16T03:36:58.717136Z  INFO tailwindcss_oxide::scanner: Source: Auto { base: "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent" }
+2026-06-16T03:36:58.718675Z  INFO discover_sources: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.718742Z  INFO discover_sources:walk_synchronous: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.730159Z  INFO discover_sources:walk_synchronous: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.732184Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\eslint.config.mjs"
+2026-06-16T03:36:58.732197Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\open-next.config.ts"
+2026-06-16T03:36:58.732195Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\AGENTS.md"
+2026-06-16T03:36:58.732251Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\supabase\\client.ts"
+2026-06-16T03:36:58.732363Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\package.json"
+2026-06-16T03:36:58.732381Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\supabase\\middleware.ts"
+2026-06-16T03:36:58.732380Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\api\\auth\\route.ts"
+2026-06-16T03:36:58.732356Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\FINAL_DEPLOYMENT_CHECKLIST.md"
+2026-06-16T03:36:58.732478Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\postcss.config.mjs"
+2026-06-16T03:36:58.732420Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\feedbackEngine.ts"
+2026-06-16T03:36:58.732479Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\supabase\\server.ts"
+2026-06-16T03:36:58.732490Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\middleware.ts"
+2026-06-16T03:36:58.732589Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\api\\feedback\\route.ts"
+2026-06-16T03:36:58.732614Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\POST_DEPLOYMENT_CHECKLIST.md"
+2026-06-16T03:36:58.732615Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\rateLimiter.ts"
+2026-06-16T03:36:58.732633Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\types.ts"
+2026-06-16T03:36:58.732729Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\recommendationEngine.ts"
+2026-06-16T03:36:58.732660Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\MVP演示说明.md"
+2026-06-16T03:36:58.732759Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\api\\recommendations\\route.ts"
+2026-06-16T03:36:58.732751Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_headers"
+2026-06-16T03:36:58.732807Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\public\\file.svg"
+2026-06-16T03:36:58.732879Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\api\\script\\route.ts"
+2026-06-16T03:36:58.732894Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\database.ts"
+2026-06-16T03:36:58.732865Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\netlify.toml"
+2026-06-16T03:36:58.732859Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\public\\_headers"
+2026-06-16T03:36:58.732815Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\scriptGenerator.ts"
+2026-06-16T03:36:58.732972Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\07-hzktxqjvzd.js"
+2026-06-16T03:36:58.733020Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\api\\trending\\route.ts"
+2026-06-16T03:36:58.733028Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\public\\globe.svg"
+2026-06-16T03:36:58.733032Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\lib\\douyinService.ts"
+2026-06-16T03:36:58.732814Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\2nykiepra7i1k.js"
+2026-06-16T03:36:58.733073Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\NETLIFY_DEPLOY.md"
+2026-06-16T03:36:58.733083Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\README.md"
+2026-06-16T03:36:58.733085Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\QgRGGC_sGfpjrU4HIiDrd\\_clientMiddlewareManifest.js"
+2026-06-16T03:36:58.733146Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\public\\next.svg"
+2026-06-16T03:36:58.733164Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\turbopack-380_3_ftf0u-6.js"
+2026-06-16T03:36:58.733203Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\supabase\\migrations\\001_remove_industry_constraint.sql"
+2026-06-16T03:36:58.733206Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\QgRGGC_sGfpjrU4HIiDrd\\_ssgManifest.js"
+2026-06-16T03:36:58.733263Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\public\\vercel.svg"
+2026-06-16T03:36:58.733268Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\0cz1d0mv5g_q7.js"
+2026-06-16T03:36:58.733272Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\QgRGGC_sGfpjrU4HIiDrd\\_buildManifest.js"
+2026-06-16T03:36:58.733291Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\login\\page.tsx"
+2026-06-16T03:36:58.733314Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\layout.tsx"
+2026-06-16T03:36:58.733395Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\public\\window.svg"
+2026-06-16T03:36:58.733451Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\supabase\\schema.sql"
+2026-06-16T03:36:58.733431Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\44n3g6o8qyi6l.js"
+2026-06-16T03:36:58.733479Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\158myu8e_yme3.js"
+2026-06-16T03:36:58.733534Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\page.tsx"
+2026-06-16T03:36:58.733602Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\0jx0ze8amk_bj.js"
+2026-06-16T03:36:58.733658Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\1f8esj_facw-w.js"
+2026-06-16T03:36:58.733462Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\next.config.ts"
+2026-06-16T03:36:58.733686Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\1jq4o6yq14o4c.js"
+2026-06-16T03:36:58.733706Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\CLAUDE.md"
+2026-06-16T03:36:58.733735Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\V2功能说明-脚本生成.md"
+2026-06-16T03:36:58.733809Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\next.svg"
+2026-06-16T03:36:58.733820Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\BUILD_ID"
+2026-06-16T03:36:58.733438Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\history\\page.tsx"
+2026-06-16T03:36:58.733531Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\Supabase搭建指南.md"
+2026-06-16T03:36:58.733812Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\globe.svg"
+2026-06-16T03:36:58.733897Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\VERCEL_DEPLOY_GUIDE.md"
+2026-06-16T03:36:58.733915Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\vercel.svg"
+2026-06-16T03:36:58.733915Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\DEPLOYMENT_CHECKLIST.md"
+2026-06-16T03:36:58.733955Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\file.svg"
+2026-06-16T03:36:58.733928Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\wrangler.jsonc"
+2026-06-16T03:36:58.733983Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\tsconfig.json"
+2026-06-16T03:36:58.733866Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\DOCKER_DEPLOY_CN.md"
+2026-06-16T03:36:58.734032Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\window.svg"
+2026-06-16T03:36:58.733813Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\2m_ej66ha8fnl.js"
+2026-06-16T03:36:58.734136Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_worker.js"
+2026-06-16T03:36:58.733662Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\205j_xg4qttf0.js"
+2026-06-16T03:36:58.734232Z  INFO discover_sources: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.734255Z  INFO extract_candidates: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.734262Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.734271Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.744126Z  INFO extract_candidates:parse_all_blobs:extract: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.744516Z  INFO extract_candidates:parse_all_blobs: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.744538Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.744543Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: Reading 2 file(s)
+2026-06-16T03:36:58.744872Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\deploy\\_next\\static\\chunks\\0txushbet0dqk.css"
+2026-06-16T03:36:58.744902Z  INFO tailwindcss_oxide::scanner: Reading "D:\\vscode\\Microsoft VS Code\\project\\customer agent\\dianbo-agent\\app\\globals.css"
+2026-06-16T03:36:58.744951Z  INFO extract_candidates:read_all_files: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.744966Z  INFO extract_candidates:extract_css_variables: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.744971Z  INFO extract_candidates:extract_css_variables:extract: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.745303Z  INFO extract_candidates:extract_css_variables:extract: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.745327Z  INFO extract_candidates:extract_css_variables: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.746684Z  INFO extract_candidates: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.749554Z  INFO get_files: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.749601Z  INFO get_files:discover_sources: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.749608Z  INFO get_files:discover_sources: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.749842Z  INFO get_files: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.752019Z  INFO get_globs: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.752074Z  INFO get_globs:discover_sources: tailwindcss_oxide::scanner: enter
+2026-06-16T03:36:58.752082Z  INFO get_globs:discover_sources: tailwindcss_oxide::scanner: exit
+2026-06-16T03:36:58.773406Z  INFO get_globs: tailwindcss_oxide::scanner: exit

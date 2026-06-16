@@ -2,17 +2,15 @@
   command = "npm run build"
   publish = ".next"
 
-[build.environment]
-  NODE_VERSION = "20"
-
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+  [plugins.inputs]
 
-# 环境变量（在 Netlify UI 中配置，不要硬编码在这里）
-# QWEN_API_KEY
-# NEXT_PUBLIC_SUPABASE_URL
-# NEXT_PUBLIC_SUPABASE_ANON_KEY
-# DOUYIN_HOT_API_KEY (可选)
+# Fix: redirect /_next/* to /static/* since plugin's onPostBuild may not run
+[[redirects]]
+  from = "/_next/*"
+  to = "/:splat"
+  status = 200
 
 [dev]
   command = "npm run dev"
