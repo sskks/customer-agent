@@ -1,0 +1,17 @@
+# 店播AI Agent - Robots.txt
+# https://dianbo-agent-nextjs.netlify.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://dianbo-agent-nextjs.netlify.app/sitemap.xml
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /*?*
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

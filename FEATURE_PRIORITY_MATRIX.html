@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店播AI Agent - 功能优先级矩阵</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 500px;
+            margin-bottom: 30px;
+        }
+        
+        .priority-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .priority-table th,
+        .priority-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .priority-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .priority-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-quick-win {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-big-bet {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-strategic {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .badge-fill-in {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .badge-avoid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .score-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .card h3 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .card .label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .chart-container {
+                height: 400px;
+            }
+            
+            .priority-table {
+                font-size: 12px;
+            }
+            
+            .priority-table th,
+            .priority-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 店播AI Agent - 功能优先级矩阵</h1>
+            <p>基于RICE模型的需求优先级排序 | 更新时间: 2026-06-16</p>
+        </div>
+        
+        <div class="content">
+            <!-- Summary Cards -->
+            <div class="section">
+                <h2 class="section-title">📊 核心指标概览</h2>
+                <div class="summary-cards">
+                    <div class="card">
+                        <h3>总功能数</h3>
+                        <div class="value">18</div>
+                        <div class="label">已评估功能</div>
+                    </div>
+                    <div class="card">
+                        <h3>Quick Wins</h3>
+                        <div class="value">6</div>
+                        <div class="label">高影响+低工作量</div>
+                    </div>
+                    <div class="card">
+                        <h3>Big Bets</h3>
+                        <div class="value">4</div>
+                        <div class="label">高影响+高工作量</div>
+                    </div>
+                    <div class="card">
+                        <h3>平均RICE分</h3>
+                        <div class="value">285</div>
+                        <div class="label">所有功能平均值</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Priority Matrix Chart -->
+            <div class="section">
+                <h2 class="section-title">📈 四象限优先级矩阵</h2>
+                <div class="chart-container">
+                    <canvas id="priorityMatrix"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #28a745;"></div>
+                        <span>Quick Wins (优先执行)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffc107;"></div>
+                        <span>Big Bets (战略规划)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #17a2b8;"></div>
+                        <span>Strategic (长期投入)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #6c757d;"></div>
+                        <span>Fill-ins (有空再做)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #dc3545;"></div>
+                        <span>Avoid (暂不投入)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RICE Score Ranking -->
+            <div class="section">
+                <h2 class="section-title">🏆 RICE 评分排行榜</h2>
+                <table class="priority-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>功能名称</th>
+                            <th>R<br><small>(触达)</small></th>
+                            <th>I<br><small>(影响)</small></th>
+                            <th>C<br><small>(信心)</small></th>
+                            <th>E<br><small>(工作量)</small></th>
+                            <th>RICE Score</th>
+                            <th>象限</th>
+                            <th>建议</th>
+                        </tr>
+                    </thead>
+                    <tbody id="riceTable">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Sprint Planning -->
+            <div class="section">
+                <h2 class="section-title">📅 Q3 Sprint 规划</h2>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="sprintChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Feature data
+        const features = [
+            { rank: 1, name: "新手引导流程", r: 1000, i: 2.5, c: 90, e: 3, score: 750, quadrant: "Quick Win", action: "本期必做" },
+            { rank: 2, name: "一键复制/导出", r: 1000, i: 2.0, c: 95, e: 1, score: 1900, quadrant: "Quick Win", action: "本期必做" },
+            { rank: 3, name: "脚本实时预览", r: 800, i: 2.0, c: 85, e: 2, score: 680, quadrant: "Quick Win", action: "本期必做" },
+            { rank: 4, name: "批量生成功能", r: 300, i: 2.5, c: 80, e: 6, score: 100, quadrant: "Strategic", action: "Q3规划" },
+            { rank: 5, name: "订阅制付费体系", r: 1000, i: 3.0, c: 70, e: 18, score: 117, quadrant: "Big Bet", action: "Q3重点" },
+            { rank: 6, name: "数据分析后台", r: 500, i: 2.5, c: 85, e: 15, score: 71, quadrant: "Strategic", action: "Q3规划" },
+            { rank: 7, name: "移动端适配(PWA)", r: 600, i: 2.0, c: 80, e: 9, score: 107, quadrant: "Strategic", action: "Q3规划" },
+            { rank: 8, name: "视频模板库", r: 400, i: 3.0, c: 60, e: 12, score: 60, quadrant: "Big Bet", action: "Q4探索" },
+            { rank: 9, name: "多语言支持", r: 200, i: 2.5, c: 70, e: 7, score: 50, quadrant: "Fill-in", action: "Q4备选" },
+            { rank: 10, name: "A/B测试框架", r: 1000, i: 1.5, c: 90, e: 10, score: 135, quadrant: "Strategic", action: "Q3规划" },
+            { rank: 11, name: "用户反馈收集", r: 1000, i: 1.5, c: 95, e: 5, score: 285, quadrant: "Quick Win", action: "本期必做" },
+            { rank: 12, name: "性能优化（缓存）", r: 1000, i: 1.5, c: 85, e: 8, score: 159, quadrant: "Strategic", action: "Q3规划" },
+            { rank: 13, name: "监控告警系统", r: 1000, i: 1.0, c: 90, e: 10, score: 90, quadrant: "Fill-in", action: "Q3备选" },
+            { rank: 14, name: "SEO优化", r: 500, i: 2.0, c: 80, e: 5, score: 160, quadrant: "Quick Win", action: "Q3规划" },
+            { rank: 15, name: "社交分享功能", r: 800, i: 1.5, c: 75, e: 4, score: 225, quadrant: "Quick Win", action: "Q3规划" },
+            { rank: 16, name: "AI视频生成", r: 200, i: 3.0, c: 50, e: 25, score: 12, quadrant: "Big Bet", action: "2027 Q1" },
+            { rank: 17, name: "跨平台分发", r: 300, i: 2.5, c: 60, e: 15, score: 30, quadrant: "Big Bet", action: "2027 Q1" },
+            { rank: 18, name: "智能投放建议", r: 200, i: 2.5, c: 50, e: 12, score: 21, quadrant: "Big Bet", action: "2027 Q1" }
+        ];
+        
+        // Populate RICE table
+        const tableBody = document.getElementById('riceTable');
+        features.forEach(feature => {
+            const row = document.createElement('tr');
+            let badgeClass = '';
+            if (feature.quadrant === 'Quick Win') badgeClass = 'badge-quick-win';
+            else if (feature.quadrant === 'Big Bet') badgeClass = 'badge-big-bet';
+            else if (feature.quadrant === 'Strategic') badgeClass = 'badge-strategic';
+            else if (feature.quadrant === 'Fill-in') badgeClass = 'badge-fill-in';
+            else badgeClass = 'badge-avoid';
+            
+            const maxScore = 1900;
+            const barWidth = (feature.score / maxScore) * 100;
+            
+            row.innerHTML = `
+                <td><strong>${feature.rank}</strong></td>
+                <td>${feature.name}</td>
+                <td>${feature.r.toLocaleString()}</td>
+                <td>${feature.i}</td>
+                <td>${feature.c}%</td>
+                <td>${feature.e}人天</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-weight: 600; min-width: 50px;">${feature.score}</span>
+                        <div class="score-bar" style="flex: 1;">
+                            <div class="score-fill" style="width: ${barWidth}%;"></div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge ${badgeClass}">${feature.quadrant}</span></td>
+                <td>${feature.action}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+        // Priority Matrix Chart
+        const ctx = document.getElementById('priorityMatrix').getContext('2d');
+        new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Quick Wins',
+                    data: features.filter(f => f.quadrant === 'Quick Win').map(f => ({
+                        x: f.e,
+                        y: f.r * f.i * (f.c / 100),
+                        name: f.name,
+                        score: f.score
+                    })),
+                    backgroundColor: '#28a745',
+                    pointRadius: 8,
+                    pointHoverRadius: 12
+                }, {
+                    label: 'Big Bets',
+                    data: features.filter(f => f.quadrant === 'Big Bet').map(f => ({
+                        x: f.e,
+                        y: f.r * f.i * (f.c / 100),
+                        name: f.name,
+                        score: f.score
+                    })),
+                    backgroundColor: '#ffc107',
+                    pointRadius: 8,
+                    pointHoverRadius: 12
+                }, {
+                    label: 'Strategic',
+                    data: features.filter(f => f.quadrant === 'Strategic').map(f => ({
+                        x: f.e,
+                        y: f.r * f.i * (f.c / 100),
+                        name: f.name,
+                        score: f.score
+                    })),
+                    backgroundColor: '#17a2b8',
+                    pointRadius: 8,
+                    pointHoverRadius: 12
+                }, {
+                    label: 'Fill-ins',
+                    data: features.filter(f => f.quadrant === 'Fill-in').map(f => ({
+                        x: f.e,
+                        y: f.r * f.i * (f.c / 100),
+                        name: f.name,
+                        score: f.score
+                    })),
+                    backgroundColor: '#6c757d',
+                    pointRadius: 8,
+                    pointHoverRadius: 12
+                }, {
+                    label: 'Avoid',
+                    data: features.filter(f => f.quadrant === 'Avoid').map(f => ({
+                        x: f.e,
+                        y: f.r * f.i * (f.c / 100),
+                        name: f.name,
+                        score: f.score
+                    })),
+                    backgroundColor: '#dc3545',
+                    pointRadius: 8,
+                    pointHoverRadius: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const point = context.raw;
+                                return `${point.name} (Score: ${point.score})`;
+                            }
+                        }
+                    },
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                xMin: 10,
+                                xMax: 10,
+                                borderColor: 'rgba(0, 0, 0, 0.3)',
+                                borderWidth: 2,
+                                borderDash: [5, 5]
+                            },
+                            line2: {
+                                type: 'line',
+                                yMin: 1500,
+                                yMax: 1500,
+                                borderColor: 'rgba(0, 0, 0, 0.3)',
+                                borderWidth: 2,
+                                borderDash: [5, 5]
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '工作量 (人天)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        min: 0,
+                        max: 30
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '影响力 (R × I × C%)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        min: 0,
+                        max: 3000
+                    }
+                }
+            }
+        });
+        
+        // Sprint Planning Chart
+        const sprintCtx = document.getElementById('sprintChart').getContext('2d');
+        new Chart(sprintCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sprint 1-2\n(基础体验)', 'Sprint 3-4\n(商业化)', 'Sprint 5-6\n(运营工具)'],
+                datasets: [{
+                    label: 'Quick Wins',
+                    data: [14, 0, 0],
+                    backgroundColor: '#28a745'
+                }, {
+                    label: 'Strategic',
+                    data: [0, 19, 24],
+                    backgroundColor: '#17a2b8'
+                }, {
+                    label: 'Big Bets',
+                    data: [0, 18, 0],
+                    backgroundColor: '#ffc107'
+                }, {
+                    label: 'Fill-ins',
+                    data: [0, 0, 10],
+                    backgroundColor: '#6c757d'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Q3 Sprint 工作量分布 (人天)',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '工作量 (人天)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

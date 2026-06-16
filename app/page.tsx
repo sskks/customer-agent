@@ -6,6 +6,8 @@ import { GeneratedScript } from '@/lib/scriptGenerator';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import type { HotTopic, DouyinVideo, SearchResult } from '@/lib/douyinService';
+import OnboardingModal from '@/components/OnboardingModal';
+import ShareButton from '@/components/ShareButton';
 
 type TabMode = 'recommend' | 'search';
 
@@ -224,17 +226,18 @@ function ScriptModal({ recommendation, industry, businessName, onClose }: Script
               </section>
 
               {/* ── 操作按钮 ── */}
-              <div className="flex gap-3 pt-4 border-t border-slate-100">
+              <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
                 <button
                   onClick={() => {
                     const content = `【${script.title}】\n\n${script.mainContent}\n\n${script.callToAction}`;
                     navigator.clipboard.writeText(content);
                     alert('已复制到剪贴板！');
                   }}
-                  className="flex-1 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium text-sm"
+                  className="flex-1 min-w-[120px] py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-medium text-sm"
                 >
-                  复制文案
+                  📋 复制文案
                 </button>
+                
                 <button
                   onClick={() => {
                     const scriptContent = script.sceneBreakdown.map(s =>
@@ -249,10 +252,16 @@ function ScriptModal({ recommendation, industry, businessName, onClose }: Script
                     a.click();
                     URL.revokeObjectURL(url);
                   }}
-                  className="flex-1 py-2.5 bg-white text-indigo-600 border border-indigo-200 rounded-xl hover:bg-indigo-50 transition-colors font-medium text-sm"
+                  className="flex-1 min-w-[120px] py-2.5 bg-white text-indigo-600 border border-indigo-200 rounded-xl hover:bg-indigo-50 transition-colors font-medium text-sm"
                 >
-                  下载脚本
+                  💾 下载TXT
                 </button>
+                
+                <ShareButton
+                  title={script.title}
+                  text={`${script.hookLine}\n\n${script.mainContent.substring(0, 100)}...`}
+                  url={window.location.href}
+                />
               </div>
             </div>
           ) : null}
@@ -281,6 +290,7 @@ export default function Home() {
   // ─── 用户认证状态 ───
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const supabase = createClient();
 
   // ─── Tab 切换 ───
@@ -322,6 +332,14 @@ export default function Home() {
       if (!error && profile) {
         setIndustry(profile.industry || 'beauty');
         setBusinessName(profile.business_name || '');
+        
+        // 如果用户没有设置行业或店铺名称，显示新手引导
+        if (!profile.industry || !profile.business_name) {
+          setShowOnboarding(true);
+        }
+      } else {
+        // 新用户，显示新手引导
+        setShowOnboarding(true);
       }
     } catch (err) {
       console.error('加载用户资料失败:', err);
@@ -968,6 +986,14 @@ export default function Home() {
           industry={industry}
           businessName={businessName}
           onClose={() => setSelectedRecommendation(null)}
+        />
+      )}
+
+      {/* ════════ OnboardingModal ════════ */}
+      {showOnboarding && user && (
+        <OnboardingModal
+          user={user}
+          onComplete={() => setShowOnboarding(false)}
         />
       )}
 
