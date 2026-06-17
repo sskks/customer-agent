@@ -202,6 +202,23 @@ function VideoCard({ video }: { video: DouyinVideo }) {
  * ============================================================ */
 export default function Home() {
   const [tab, setTab] = useState<TabMode>('recommend');
+  const [userEmail, setUserEmail] = useState<string>('');
+
+  useEffect(() => {
+    import('@/lib/supabase/client').then(({ createClient }) => {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) setUserEmail(user.email || '');
+      });
+    });
+  }, []);
+
+  const handleLogout = async () => {
+    const { createClient } = await import('@/lib/supabase/client');
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
 
   // ---- 推荐 tab 状态 ----
   const [loading, setLoading] = useState(false);
@@ -364,12 +381,22 @@ export default function Home() {
               <p className="text-xs text-slate-400">智能短视频获客助手</p>
             </div>
           </div>
-          {feedbackInsight && feedbackInsight.totalFeedback > 0 && (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200">
-              <span className="text-xs text-emerald-600 font-medium">已学习 {feedbackInsight.totalFeedback} 条反馈</span>
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-3">
+            {feedbackInsight && feedbackInsight.totalFeedback > 0 && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200">
+                <span className="text-xs text-emerald-600 font-medium">已学习 {feedbackInsight.totalFeedback} 条反馈</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              {userEmail && (
+                <span className="hidden sm:block text-xs text-slate-400 max-w-[140px] truncate">{userEmail}</span>
+              )}
+              <button onClick={handleLogout} className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition">
+                退出
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </header>
 
