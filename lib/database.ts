@@ -102,7 +102,7 @@ export async function createContentRecord(content: {
   topic: string;
   content_type: string;
   title: string;
-  script_json?: any;
+  script_json?: unknown;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -127,7 +127,12 @@ export async function updateContentMetrics(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('未登录');
 
-  const updates: any = { metrics, updated_at: new Date().toISOString() };
+  const updates: {
+    metrics: { views?: number; likes?: number; comments?: number; inquiries?: number };
+    updated_at: string;
+    status?: 'published' | 'filming' | 'archived';
+    published_at?: string;
+  } = { metrics, updated_at: new Date().toISOString() };
   if (status) {
     updates.status = status;
     if (status === 'published') updates.published_at = new Date().toISOString();

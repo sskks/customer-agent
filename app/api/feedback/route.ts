@@ -1,35 +1,23 @@
-/**
- * 反馈 API 路由
- * POST /api/feedback — 提交反馈 / 录入实际效果数据
- * GET  /api/feedback — 获取反馈洞察
- */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { FeedbackEngine, FeedbackRecord } from '@/lib/feedbackEngine';
+import { FeedbackEngine, type FeedbackRecord } from '@/lib/feedbackEngine';
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/rateLimiter';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 });
+      return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 });
     }
 
-    // 速率限制检查
     const rateLimit = await checkRateLimit(request, '/api/feedback', user.id);
-    
     if (!rateLimit.success) {
       return NextResponse.json(
-        {
-          success: false,
-          error: `请求过于频繁，请在 ${rateLimit.retryAfter} 秒后重试`,
-        },
-        { 
-          status: 429,
-          headers: getRateLimitHeaders(rateLimit),
-        }
+        { success: false, error: '请求过于频繁，请稍后重试' },
+        { status: 429, headers: getRateLimitHeaders(rateLimit) }
       );
     }
 
@@ -37,12 +25,8 @@ export async function POST(request: NextRequest) {
     const { action, recommendationId, feedback, views, inquiries } = body;
 
     if (action === 'submit') {
-      // 提交反馈（点赞/点踩）
       if (!recommendationId || !feedback) {
-        return NextResponse.json(
-          { success: false, error: '缺少 recommendationId 或 feedback' },
-          { status: 400 }
-        );
+        return NextResponse.json({ success: false, error: '缺少 recommendationId 或 feedback' }, { status: 400 });
       }
 
       const { data, error } = await supabase
@@ -55,26 +39,15 @@ export async function POST(request: NextRequest) {
 
       if (error) throw error;
 
-      return NextResponse.json({
-        success: true,
-        message: feedback === 'good' ? '感谢反馈！已记录你的偏好' : feedback === 'bad' ? '已记录，下次推荐会避免类似内容' : '已记录',
-        data,
-      }, {
-        headers: getRateLimitHeaders(rateLimit),
-      });
+      return NextResponse.json({ success: true, message: '反馈已记录', data }, { headers: getRateLimitHeaders(rateLimit) });
     }
 
     if (action === 'record_metrics') {
-      // 录入视频实际效果数据
       if (!recommendationId) {
-        return NextResponse.json(
-          { success: false, error: '缺少 recommendationId' },
-          { status: 400 }
-        );
+        return NextResponse.json({ success: false, error: '缺少 recommendationId' }, { status: 400 });
       }
 
-      // 先创建内容记录
-      const { data: contentData, error: contentError } = await supabase
+      const { data: contentRecord, error: insertError } = await supabase
         .from('content_records')
         .insert({
           user_id: user.id,
@@ -88,51 +61,37 @@ export async function POST(request: NextRequest) {
         .select()
         .single();
 
-      if (contentError) throw contentError;
+      if (insertError) throw insertError;
 
-      // 关联到推荐历史
       const { error: updateError } = await supabase
         .from('recommendation_history')
-        .update({
-          actual_content_id: contentData.id,
-          user_feedback: feedback || 'good',
-        })
+        .update({ actual_content_id: contentRecord.id, user_feedback: feedback || 'good' })
         .eq('id', recommendationId)
         .eq('user_id', user.id);
 
       if (updateError) throw updateError;
 
-      // 刷新业务指标
       await supabase.rpc('refresh_business_metrics', { p_user_id: user.id });
 
-      return NextResponse.json({
-        success: true,
-        message: '效果数据已记录！Agent 会据此优化下次推荐',
-        data: contentData,
-      }, {
-        headers: getRateLimitHeaders(rateLimit),
-      });
+      return NextResponse.json({ success: true, message: '效果数据已记录', data: contentRecord }, { headers: getRateLimitHeaders(rateLimit) });
     }
 
     return NextResponse.json({ success: false, error: '未知操作' }, { status: 400 });
   } catch (error) {
-    console.error('[Feedback API] 错误:', error);
-    return NextResponse.json(
-      { success: false, error: '提交失败，请重试' },
-      { status: 500 }
-    );
+    console.error('[Feedback API] POST failed:', error);
+    return NextResponse.json({ success: false, error: '提交失败，请稍后重试' }, { status: 500 });
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+
     if (!user) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 });
+      return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 });
     }
 
-    // 获取用户的推荐历史和反馈
     const { data: history, error } = await supabase
       .from('recommendation_history')
       .select('*')
@@ -143,32 +102,30 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error;
 
-    // 转换为 FeedbackRecord 格式
-    const records: FeedbackRecord[] = (history || []).map((rec: any) => ({
-      id: rec.id,
-      userId: rec.user_id,
-      recommendationId: rec.id,
-      topic: rec.topic,
-      contentType: rec.content_type,
-      feedback: rec.user_feedback,
-      createdAt: rec.created_at,
+    const feedbackHistory = (history || []) as Array<{
+      id: string;
+      user_id: string;
+      topic: string;
+      content_type: string;
+      user_feedback: 'good' | 'neutral' | 'bad';
+      created_at: string;
+    }>;
+
+    const records: FeedbackRecord[] = feedbackHistory.map((record) => ({
+      id: record.id,
+      userId: record.user_id,
+      recommendationId: record.id,
+      topic: record.topic,
+      contentType: record.content_type,
+      feedback: record.user_feedback,
+      createdAt: record.created_at,
     }));
 
-    // 分析反馈数据
     const insight = FeedbackEngine.analyzeFeedback(records);
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        insight,
-        recentFeedback: records.slice(0, 10),
-      },
-    });
+    return NextResponse.json({ success: true, data: { insight, recentFeedback: records.slice(0, 10) } });
   } catch (error) {
-    console.error('[Feedback API] 错误:', error);
-    return NextResponse.json(
-      { success: false, error: '获取反馈数据失败' },
-      { status: 500 }
-    );
+    console.error('[Feedback API] GET failed:', error);
+    return NextResponse.json({ success: false, error: '获取反馈数据失败' }, { status: 500 });
   }
 }

@@ -35,6 +35,14 @@ export interface SearchResult {
   totalResults: number;
 }
 
+interface XxApiHotTopic {
+  position?: number;
+  word?: string;
+  hot_value?: number | string;
+  label?: string;
+  video_count?: number | string;
+}
+
 /* ─── 行业分类映射（用于关键词归类）─────────── */
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
@@ -127,7 +135,7 @@ export class DouyinService {
       throw new Error(`xxapi 返回错误: ${json.msg || json.code}`);
     }
 
-    let topics: HotTopic[] = (json.data || []).map((item: any, i: number) => ({
+    let topics: HotTopic[] = ((json.data || []) as XxApiHotTopic[]).map((item, i: number) => ({
       rank: item.position || i + 1,
       keyword: item.word || '',
       heatValue: Number(item.hot_value) || 0,
@@ -137,9 +145,11 @@ export class DouyinService {
 
     if (keyword) {
       const kw = keyword.toLowerCase();
-      topics = topics.filter(
-        (t) => t.keyword.toLowerCase().includes(kw) || t.category.toLowerCase().includes(kw)
-      );
+      topics = topics.filter((t) => {
+        const keywordText = String(t.keyword || '').toLowerCase();
+        const categoryText = String(t.category || '').toLowerCase();
+        return keywordText.includes(kw) || categoryText.includes(kw);
+      });
     }
     return topics;
   }
@@ -150,9 +160,11 @@ export class DouyinService {
     let list = [...MOCK_HOT_TOPICS];
     if (keyword) {
       const kw = keyword.toLowerCase();
-      list = list.filter(
-        (t) => t.keyword.toLowerCase().includes(kw) || t.category.toLowerCase().includes(kw)
-      );
+      list = list.filter((t) => {
+        const keywordText = String(t.keyword || '').toLowerCase();
+        const categoryText = String(t.category || '').toLowerCase();
+        return keywordText.includes(kw) || categoryText.includes(kw);
+      });
     }
     list.forEach((t) => {
       t.heatValue = Math.round(t.heatValue * (0.95 + Math.random() * 0.1));

@@ -1,11 +1,6 @@
-/**
- * 抖音热搜 / 热点数据 API
- * GET  → 获取热搜榜（可选 keyword 过滤）
- * POST → 按关键词搜索热点话题 + 相关视频
- */
-
 import { NextRequest, NextResponse } from 'next/server';
 import { DouyinService } from '@/lib/douyinService';
+import { repairData, repairText } from '@/lib/textRepair';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,14 +13,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        topics,
+        topics: repairData(topics),
         source: process.env.DOUYIN_HOT_API_KEY ? 'xxapi' : 'mock',
-        keyword: keyword || '全部',
+        keyword: repairText(keyword || '全部'),
       },
     });
   } catch (error) {
-    console.error('[Trending API] GET 失败:', error);
-    return NextResponse.json({ success: false, error: '获取热搜数据失败' }, { status: 500 });
+    console.error('[Trending API] GET failed:', error);
+    return NextResponse.json(
+      { success: false, error: '获取热点数据失败，请稍后重试' },
+      { status: 500 }
+    );
   }
 }
 
@@ -35,7 +33,10 @@ export async function POST(request: NextRequest) {
     const { keyword } = body;
 
     if (!keyword || !keyword.trim()) {
-      return NextResponse.json({ success: false, error: '请输入搜索关键词' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: '请输入要搜索的关键词' },
+        { status: 400 }
+      );
     }
 
     const service = new DouyinService();
@@ -44,12 +45,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        ...result,
+        ...repairData(result),
         source: process.env.DOUYIN_HOT_API_KEY ? 'xxapi' : 'mock',
       },
     });
   } catch (error) {
-    console.error('[Trending API] POST 失败:', error);
-    return NextResponse.json({ success: false, error: '搜索失败，请重试' }, { status: 500 });
+    console.error('[Trending API] POST failed:', error);
+    return NextResponse.json(
+      { success: false, error: '搜索失败，请稍后重试' },
+      { status: 500 }
+    );
   }
 }

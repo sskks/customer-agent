@@ -8,9 +8,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { RecommendationEngine } from '@/lib/recommendationEngine';
 import { FeedbackEngine, FeedbackRecord } from '@/lib/feedbackEngine';
-import { AgentContext, Industry, matchIndustryProfile, getDefaultIndustryProfile, IndustryProfile } from '@/lib/types';
+import { AgentContext, ContentType, Industry, matchIndustryProfile, getDefaultIndustryProfile } from '@/lib/types';
 import { DouyinService } from '@/lib/douyinService';
 import { checkRateLimit, getRateLimitHeaders } from '@/lib/rateLimiter';
+import { repairData, repairText } from '@/lib/textRepair';
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,7 +109,16 @@ export async function POST(request: NextRequest) {
         .limit(100);
 
       if (feedbackHistory && feedbackHistory.length > 0) {
-        const records: FeedbackRecord[] = feedbackHistory.map((rec: any) => ({
+        const typedFeedbackHistory = feedbackHistory as Array<{
+          id: string;
+          user_id: string;
+          topic: string;
+          content_type: string;
+          user_feedback: 'good' | 'neutral' | 'bad';
+          created_at: string;
+        }>;
+
+        const records: FeedbackRecord[] = typedFeedbackHistory.map((rec) => ({
           id: rec.id,
           userId: rec.user_id,
           recommendationId: rec.id,
@@ -128,7 +138,12 @@ export async function POST(request: NextRequest) {
           industry,
           businessName: profile?.business_name || body.businessName || '我的店铺',
           location: profile?.location || '上海',
-          services: (services || []).map((s: any) => ({
+          services: (services || []).map((s: {
+            id: string;
+            name: string;
+            description?: string | null;
+            price?: number | null;
+          }) => ({
             id: s.id,
             name: s.name,
             description: s.description || '',
@@ -154,19 +169,31 @@ export async function POST(request: NextRequest) {
         },
         contentHistory: {
           totalPublished: (contents || []).length,
-          recentContents: (contents || []).slice(0, 20).map((c: any) => ({
+          recentContents: (contents || []).slice(0, 20).map((c: {
+            id: string;
+            topic: string;
+            content_type: string;
+            title: string;
+            metrics?: { views?: number; likes?: number; comments?: number; inquiries?: number } | null;
+            published_at?: Date;
+          }) => ({
             id: c.id,
             userId: userId!,
             topic: c.topic,
-            contentType: c.content_type,
+            contentType: c.content_type as ContentType,
             title: c.title,
-            metrics: c.metrics || { views: 0, likes: 0, comments: 0, inquiries: 0 },
+            metrics: {
+              views: c.metrics?.views || 0,
+              likes: c.metrics?.likes || 0,
+              comments: c.metrics?.comments || 0,
+              inquiries: c.metrics?.inquiries || 0,
+            },
             publishedAt: c.published_at,
           })),
         },
         preferences: {
           userId,
-          preferredContentTypes: (prefs?.preferred_content_types as any[]) || ['customer_case', 'knowledge'],
+          preferredContentTypes: ((prefs?.preferred_content_types as string[] | undefined) || ['customer_case', 'knowledge']) as ContentType[],
           avoidedTopics: (prefs?.avoided_topics as string[]) || [],
           maxDifficulty: (prefs?.max_difficulty as 'easy' | 'medium' | 'hard') || 'medium',
         },
@@ -239,7 +266,7 @@ export async function POST(request: NextRequest) {
         contentHistory: { totalPublished: 15, recentContents: [] },
         preferences: {
           userId: 'demo_user',
-          preferredContentTypes: ['customer_case', 'knowledge'],
+          preferredContentTypes: ['customer_case', 'knowledge'] as ContentType[],
           avoidedTopics: [],
           maxDifficulty: 'medium',
         },
@@ -289,17 +316,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        recommendations,
+        recommendations: repairData(recommendations),
         context: {
-          industry: context.userProfile.industry,
-          businessName: context.userProfile.businessName,
+          industry: repairText(context.userProfile.industry),
+          businessName: repairText(context.userProfile.businessName),
           season: context.currentSituation.season,
         },
         feedbackInsight: feedbackInsight
           ? {
               totalFeedback: feedbackInsight.totalFeedback,
               satisfaction: feedbackInsight.overallSatisfaction,
-              suggestions: feedbackInsight.suggestions,
+              suggestions: feedbackInsight.suggestions.map((item) => repairText(item)),
             }
           : null,
       },

@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface ShareButtonProps {
   title: string;
@@ -10,28 +10,12 @@ interface ShareButtonProps {
 
 export default function ShareButton({ title, text, url }: ShareButtonProps) {
   const [showMenu, setShowMenu] = useState(false);
-  const [hasNativeShare, setHasNativeShare] = useState(false);
-
-  useEffect(() => {
-    setHasNativeShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
-  }, []);
+  const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   const shareData = {
-    title: title,
-    text: text,
+    title,
+    text,
     url: url || (typeof window !== 'undefined' ? window.location.href : ''),
-  };
-
-  const handleNativeShare = async () => {
-    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.error('分享失败:', err);
-      }
-    } else {
-      copyToClipboard();
-    }
   };
 
   const copyToClipboard = () => {
@@ -43,6 +27,18 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
       }).catch(() => {
         alert('复制失败，请手动复制');
       });
+    }
+  };
+
+  const handleNativeShare = async () => {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('分享失败:', err);
+      }
+    } else {
+      copyToClipboard();
     }
   };
 
@@ -77,7 +73,7 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
             className="fixed inset-0 z-40"
             onClick={() => setShowMenu(false)}
           />
-          
+
           <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50 animate-fade-in">
             <div className="py-2">
               {hasNativeShare && (
@@ -89,7 +85,7 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
                   <span>系统分享</span>
                 </button>
               )}
-              
+
               <button
                 onClick={shareToWeChat}
                 className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
@@ -97,7 +93,7 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
                 <span>💬</span>
                 <span>微信分享</span>
               </button>
-              
+
               <button
                 onClick={shareToWeibo}
                 className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
@@ -105,7 +101,7 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
                 <span>❤️</span>
                 <span>新浪微博</span>
               </button>
-              
+
               <button
                 onClick={shareToQQ}
                 className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
@@ -113,9 +109,9 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
                 <span>🐧</span>
                 <span>QQ空间</span>
               </button>
-              
+
               <div className="border-t border-slate-100 my-1" />
-              
+
               <button
                 onClick={copyToClipboard}
                 className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
