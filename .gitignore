@@ -1,6 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -10,45 +8,66 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing
 /coverage
 
-# next.js
+# Next.js
 /.next/
 /out/
+/open-next/
+/.open-next/
 
-# production
+# Production
 /build
 
-# misc
+# Misc
 .DS_Store
 *.pem
 
-# debug
+# Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Local env files (contains secrets, NEVER commit!)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
 
-# vercel
+# Vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-.vercel
-
-# OpenNext
-.open-next
-
-# wrangler files
+# Wrangler / Cloudflare
 .wrangler
 .dev.vars*
 !.dev.vars.example
+.wrangler.toml
 
-# Local Netlify folder
+# Netlify
 .netlify
+
+# Typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Build artifacts & Logs
+next-build.zip
+*.log
+dev-server*.log
+*.tsbuildinfo
+
+# Deploy temp
+deploy/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

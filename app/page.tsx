@@ -32,22 +32,9 @@ function ScriptModal({ recommendation, industry, businessName, onClose }: Script
   const [script, setScript] = useState<GeneratedScript | null>(null);
   const [error, setError] = useState<string>('');
 
-  useEffect(() => {
-    generateScript();
-  }, []);
-
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handleEsc);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = '';
-    };
-  }, [onClose]);
-
-  const generateScript = async () => {
+  const generateScript = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
       const response = await fetch('/api/script', {
         method: 'POST',
@@ -68,7 +55,21 @@ function ScriptModal({ recommendation, industry, businessName, onClose }: Script
     } finally {
       setLoading(false);
     }
-  };
+  }, [recommendation, industry, businessName]);
+
+  useEffect(() => {
+    generateScript();
+  }, [generateScript]);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleEsc);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [onClose]);
 
   return (
     <div

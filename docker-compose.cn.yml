@@ -1,0 +1,64 @@
+# ================================================
+# 腾讯云国内优化版 docker-compose.yml
+# 使用国内镜像源，自动 HTTPS
+# ================================================
+
+version: '3.8'
+
+services:
+  dianbo-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.cn
+    container_name: dianbo-agent
+    ports:
+      - "3000:3000"
+    environment:
+      # AI API Key (通义千问，必需)
+      - QWEN_API_KEY=${QWEN_API_KEY}
+      
+      # Supabase 配置（必需，用于认证和数据库）
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      
+      # 可选：抖音热点 API Key
+      - DOUYIN_HOT_API_KEY=${DOUYIN_HOT_API_KEY}
+      
+      # Node.js 设置
+      - NODE_ENV=production
+      - PORT=3000
+      - TZ=Asia/Shanghai
+    
+    restart: always
+    
+    # 资源限制（根据服务器配置调整）
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    networks:
+      - app-network
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app-network:
+    driver: bridge

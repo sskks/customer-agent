@@ -1,0 +1,65 @@
+# ================================================
+# 腾讯云国内优化版 Dockerfile
+# 使用国内镜像源，加速构建速度
+# ================================================
+
+# Stage 1: Build the application
+# 使用腾讯云 Docker Hub 镜像加速
+FROM ccr.ccs.tencentyun.com/library/node:20-alpine AS builder
+
+WORKDIR /app
+
+# 配置 npm 使用淘宝源加速
+RUN npm config set registry https://registry.npmmirror.com
+
+# Copy package files and install dependencies
+COPY package*.json ./
+
+# 仅安装生产依赖
+RUN npm ci --only=production && npm cache clean --force
+
+# 安装构建需要的开发依赖
+RUN npm ci
+
+# Copy all source files
+COPY . .
+
+# Build the Next.js application
+ENV NODE_ENV=production
+RUN npm run build
+
+# Stage 2: Production image
+FROM ccr.ccs.tencentyun.com/library/node:20-alpine AS runner
+
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV=production
+ENV PORT=3000
+# 国内时区配置
+ENV TZ=Asia/Shanghai
+
+# 使用国内 Alpine 源加速
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencentyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo "Asia/Shanghai" > /etc/timezone
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy only necessary files from builder
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+# Set correct permissions
+RUN chown -R nextjs:nodejs /app
+
+USER nextjs
+
+EXPOSE 3000
+
+# Use standalone output for better performance
+CMD ["node", "server.js"]

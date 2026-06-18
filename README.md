@@ -1,87 +1,127 @@
-# 店播AI Agent - 智能短视频获客助手
+<div align="center">
 
-> 让每个本地商家都能轻松创作高转化的短视频内容
+# 店播AI Agent 🤖
 
-## 🎯 项目简介
+智能短视频获客助手，基于 Next.js 16 + Supabase + 通义千问
 
-店播AI Agent 是一个专为本地商家（美容院、餐饮店、健身房等）设计的智能短视频内容创作助手。它能够：
+[![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-blue?logo=cloudflare)](https://pages.cloudflare.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-- 🤖 **智能推荐选题** - 基于热点趋势、季节特点和你的业务情况，推荐最适合的拍摄主题
-- ✍️ **自动生成脚本** - AI 创作完整的口播文案和分镜脚本，包含开头钩子、主体内容和行动号召
-- 📊 **效果预测** - 预估播放量、咨询量和置信度，帮助你选择最佳方案
-- 🎬 **拍摄指导** - 提供专业的灯光、道具、角度等拍摄建议
+[演示地址](https://dianbo-agent.pages.dev) · [部署文档](#-部署) · [功能说明](#-功能特性)
 
----
-
-## ✨ V2 新功能
-
-### 🚀 AI 脚本生成
-
-V2 版本新增了完整的脚本生成功能：
-
-- ✅ **开头钩子** - 前3秒抓住注意力
-- ✅ **完整口播文案** - 150-250字，口语化表达
-- ✅ **行动号召** - 引导用户评论/私信/到店
-- ✅ **分镜脚本** - 3-5个场景的详细画面描述
-- ✅ **拍摄建议** - 专业灯光、道具、角度指导
-
-详细文档请查看：[V2功能说明-脚本生成.md](./V2功能说明-脚本生成.md)
+</div>
 
 ---
 
-## 🚀 快速开始
+## ✨ 功能特性
+
+### 🎯 智能推荐
+- 多维度评分算法
+- 行业热点话题推荐
+- 季节性内容推荐
+- 基于历史表现的智能排序
+
+### 📝 AI 脚本生成
+- 集成通义千问大模型
+- 一键生成短视频脚本
+- 支持多种内容风格
+- 可自定义行业模板
+
+### 👥 用户系统
+- Supabase 认证
+- 内容发布历史
+- 用户偏好记录
+- 反馈学习机制
+
+### 📊 抖音热点数据
+- 实时热点榜单
+- 热点关键词分析
+- 相关视频推荐
+- 一键生成脚本
+
+---
+
+## 🛠 技术栈
+
+| 技术 | 说明 |
+|------|------|
+| **框架** | Next.js 16 (App Router) |
+| **语言** | TypeScript 5.x |
+| **样式** | Tailwind CSS 4 |
+| **数据库/认证** | Supabase |
+| **AI 模型** | 通义千问 (DashScope) |
+| **部署** | Cloudflare Pages / Vercel / 腾讯云 Docker |
+| **部署工具** | OpenNext + Wrangler |
+
+---
+
+## 🚀 部署
+
+### 方式一：Cloudflare Pages（推荐，国内可访问）
+
+点击按钮一键部署：
+
+[![Deploy to Cloudflare Pages](https://deploy.workers.cloudflare.com/button)](https://dash.cloudflare.com/?to=/:account/pages/new/provider/github)
+
+详细步骤请查看 [Cloudflare部署指南.md](./Cloudflare部署指南.md)
+
+### 方式二：腾讯云 Docker 部署（国内速度最快）
+
+详细步骤请查看 [腾讯云快速部署指南.md](./腾讯云快速部署指南.md)
+
+```bash
+# 使用国内优化版，速度提升 5-10 倍
+docker-compose -f docker-compose.cn.yml up -d --build
+```
+
+### 方式三：Vercel 部署（最快，但国内需翻墙）
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/sskks/customer-agent)
+
+---
+
+## 💻 本地开发
 
 ### 前置要求
 
-- Node.js 18+ 
-- npm 或 yarn
+- Node.js 20+
+- npm 9+
 
-### 安装步骤
+### 快速开始
 
-1. **克隆项目**
-   ```bash
-   cd "D:\vscode\Microsoft VS Code\project\customer agent\dianbo-agent"
-   ```
+```bash
+# 1. 克隆项目
+git clone https://github.com/sskks/customer-agent.git
+cd dianbo-agent
 
-2. **安装依赖**
-   ```bash
-   npm install
-   ```
+# 2. 配置环境变量
+cp .env.example .env.local
+# 编辑 .env.local，填入你的 API Key
 
-3. **启动开发服务器**
-   ```bash
-   npm run dev
-   ```
+# 3. 安装依赖
+npm install
 
-4. **打开浏览器**
-   
-   访问 [http://localhost:3000](http://localhost:3000)
+# 4. 启动开发服务器
+npm run dev
+```
 
-### 使用流程
+访问 http://localhost:3000 即可看到应用。
 
-1. **输入信息**
-   - 选择行业类型（美容院/餐饮店/健身房）
-   - 输入店铺名称
+### 环境变量配置
 
-2. **生成推荐**
-   
-   点击"生成今日推荐"按钮
+```env
+# 通义千问 API Key（必需）
+QWEN_API_KEY=your-api-key-here
 
-3. **查看结果**
-   
-   系统会生成 5 条智能推荐，每条包含：
-   - 选题标题
-   - 推荐理由
-   - 预期播放量和咨询量
-   - 难度等级和预计耗时
+# Supabase 配置（必需）
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-4. **生成脚本** ⭐ V2 新功能
-   
-   点击任意推荐的"生成脚本"按钮，获取：
-   - 完整的口播文案
-   - 详细的分镜脚本
-   - 专业的拍摄建议
-   - 一键复制/下载功能
+# 抖音热点 API Key（可选）
+DOUYIN_HOT_API_KEY=your-api-key
+```
 
 ---
 
@@ -89,108 +129,44 @@ V2 版本新增了完整的脚本生成功能：
 
 ```
 dianbo-agent/
-├── app/
-│   ├── api/
-│   │   ├── recommendations/    # 推荐 API
-│   │   │   └── route.ts
-│   │   └── script/             # 脚本生成 API ⭐ 新增
-│   │       └── route.ts
-│   └── page.tsx                # 主页面
-├── lib/
-│   ├── types.ts                # 类型定义
-│   ├── recommendationEngine.ts # 推荐引擎
-│   └── scriptGenerator.ts      # 脚本生成服务 ⭐ 新增
-├── components/                 # React 组件
-├── public/                     # 静态资源
-├── package.json
-├── tsconfig.json
-└── README.md
+├── app/                    # Next.js App Router
+│   ├── api/               # API 路由
+│   ├── page.tsx           # 首页
+│   └── layout.tsx         # 根布局
+├── lib/                    # 核心库
+│   ├── recommendationEngine.ts  # 推荐引擎
+│   ├── scriptGenerator.ts       # 脚本生成器
+│   ├── douyinService.ts         # 抖音热点服务
+│   ├── feedbackEngine.ts        # 反馈学习引擎
+│   └── types.ts                 # 类型定义
+├── components/             # React 组件
+├── public/                 # 静态资源
+└── ... 配置文件
 ```
 
 ---
 
-## 🛠️ 技术栈
+## 🔧 配置
 
-- **框架**: Next.js 16 (App Router)
-- **语言**: TypeScript
-- **样式**: Tailwind CSS 4
-- **AI**: 通义千问 (Qwen Plus)
-- **部署**: Vercel (推荐)
+### 获取 API Key
 
----
-
-## 💰 成本说明
-
-### 推荐生成
-- **成本**: < 0.07 元/次
-- **利润率**: 85-90%（适合订阅制）
-
-### 脚本生成
-- **演示模式**: 0 元（使用模拟数据）
-- **生产模式**: ~0.03 元/次（通义千问 qwen-plus）
-
-#### 配置真实 API（可选）
-
-1. 注册阿里云账号：https://dashscope.aliyun.com/
-2. 创建 API Key
-3. 在项目根目录创建 `.env.local`：
-   ```env
-   QWEN_API_KEY=your_api_key_here
-   ```
+1. **通义千问**：https://dashscope.console.aliyun.com/
+2. **Supabase**：https://supabase.com/dashboard/
+3. **抖音热点**（可选）：https://xxapi.cn/
 
 ---
 
-## 📊 核心算法
+## 📈 路线图
 
-### 5层推荐引擎
-
-1. **候选生成** - 从热点话题、季节性、最佳实践中生成候选
-2. **规则过滤** - 根据用户偏好和业务规则筛选
-3. **多维评分** - 5个因子综合评分：
-   - 热点匹配（权重 40%）
-   - 季节性（权重 30%）
-   - 历史表现（权重 20%）
-   - 多样性（权重 10%）
-4. **多样性保证** - 确保推荐内容不重复
-5. **LLM 优化** - 生成吸引人的标题和理由
-
-### 脚本生成 Prompt 工程
-
-针对不同内容类型采用不同的结构模板：
-
-| 内容类型 | 结构模板 |
-|---------|---------|
-| customer_case | 问题 → 解决方案 → 效果对比 → 客户反馈 |
-| knowledge | 痛点引入 → 专业讲解 → 实用建议 → 总结 |
-| environment_tour | 开场吸引 → 空间介绍 → 细节展示 → 邀请体验 |
-| promotion | 优惠信息 → 价值塑造 → 限时紧迫感 → 行动号召 |
-| behind_scenes | 日常场景 → 工作细节 → 用心之处 → 情感共鸣 |
-| product_showcase | 产品亮相 → 核心卖点 → 使用演示 → 购买引导 |
-
----
-
-## 🎯 下一步开发计划
-
-### V2.1（进行中）
-- [ ] 集成真实 LLM API
-- [ ] 添加用户认证系统
-- [ ] 实现数据库持久化
-- [ ] 增加反馈学习机制
-
-### V2.2（规划中）
-- [ ] 多模型支持（智谱 GLM、OpenAI GPT）
-- [ ] 脚本模板库和社区分享
-- [ ] A/B 测试功能
-- [ ] 语音合成（TTS）
-- [ ] 分镜可视化
-
----
-
-## 📖 相关文档
-
-- [V2功能说明-脚本生成.md](./V2功能说明-脚本生成.md) - 详细的脚本生成功能文档
-- [MVP演示说明.md](./MVP演示说明.md) - MVP 版本的使用指南
-- [项目完成清单.md](../项目完成清单.md) - 完整的功能清单
+- [x] MVP 核心推荐功能
+- [x] AI 脚本生成集成
+- [x] 用户系统 + 数据持久化
+- [x] 反馈学习机制
+- [x] 抖音热点数据集成
+- [ ] 多语言支持
+- [ ] 数据可视化仪表盘
+- [ ] 团队协作功能
+- [ ] API 开放平台
 
 ---
 
@@ -202,8 +178,14 @@ dianbo-agent/
 
 ## 📄 许可证
 
-MIT License
+MIT License - 详见 [LICENSE](LICENSE) 文件
 
 ---
 
-**Made with ❤️ by 店播AI Team**
+<div align="center">
+
+**如果这个项目对你有帮助，欢迎给个 ⭐ Star！**
+
+Made with ❤️ by sskks
+
+</div>

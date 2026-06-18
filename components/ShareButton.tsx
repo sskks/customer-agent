@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ShareButtonProps {
   title: string;
@@ -10,50 +10,52 @@ interface ShareButtonProps {
 
 export default function ShareButton({ title, text, url }: ShareButtonProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [hasNativeShare, setHasNativeShare] = useState(false);
+
+  useEffect(() => {
+    setHasNativeShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
+  }, []);
 
   const shareData = {
     title: title,
     text: text,
-    url: url || window.location.href,
+    url: url || (typeof window !== 'undefined' ? window.location.href : ''),
   };
 
-  // 使用原生 Web Share API（移动端优先支持）
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
       try {
         await navigator.share(shareData);
       } catch (err) {
         console.error('分享失败:', err);
       }
     } else {
-      // 降级到复制链接
       copyToClipboard();
     }
   };
 
   const copyToClipboard = () => {
     const content = `${title}\n\n${text}\n\n${shareData.url}`;
-    navigator.clipboard.writeText(content).then(() => {
-      alert('已复制到剪贴板！');
-      setShowMenu(false);
-    }).catch(() => {
-      alert('复制失败，请手动复制');
-    });
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(content).then(() => {
+        alert('已复制到剪贴板！');
+        setShowMenu(false);
+      }).catch(() => {
+        alert('复制失败，请手动复制');
+      });
+    }
   };
 
-  // 分享到微信（生成二维码提示）
   const shareToWeChat = () => {
     copyToClipboard();
     alert('内容已复制，请打开微信粘贴发送给朋友或朋友圈');
   };
 
-  // 分享到微博
   const shareToWeibo = () => {
     const weiboUrl = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(shareData.url)}&title=${encodeURIComponent(title + ' - ' + text)}`;
     window.open(weiboUrl, '_blank', 'width=600,height=400');
   };
 
-  // 分享到QQ
   const shareToQQ = () => {
     const qqUrl = `https://connect.qq.com/widget/shareqq/index.html?url=${encodeURIComponent(shareData.url)}&title=${encodeURIComponent(title)}&desc=${encodeURIComponent(text)}`;
     window.open(qqUrl, '_blank', 'width=600,height=400');
@@ -71,21 +73,19 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
 
       {showMenu && (
         <>
-          {/* 遮罩层 */}
           <div
             className="fixed inset-0 z-40"
             onClick={() => setShowMenu(false)}
           />
           
-          {/* 分享菜单 */}
           <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50 animate-fade-in">
             <div className="py-2">
-              {navigator.share && (
+              {hasNativeShare && (
                 <button
                   onClick={handleNativeShare}
                   className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
                 >
-                  <span>📱</span>
+                  <span>📲</span>
                   <span>系统分享</span>
                 </button>
               )}
@@ -94,7 +94,7 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
                 onClick={shareToWeChat}
                 className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
               >
-                <span>💚</span>
+                <span>💬</span>
                 <span>微信分享</span>
               </button>
               
@@ -110,7 +110,7 @@ export default function ShareButton({ title, text, url }: ShareButtonProps) {
                 onClick={shareToQQ}
                 className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-3"
               >
-                <span>💙</span>
+                <span>🐧</span>
                 <span>QQ空间</span>
               </button>
               
